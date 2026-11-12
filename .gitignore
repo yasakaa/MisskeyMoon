@@ -9,6 +9,14 @@
 node_modules
 report.*.json
 
+# Local migration inputs must never be committed.
+/packages/frontend/assets/sounds/garo/
+/packages/frontend/assets/sounds/custom/
+/postgres-*.sql
+/migration-data/
+/backups/
+packages/backend/built-smoke/
+
 # Yarn
 .yarn/*
 !.yarn/patches

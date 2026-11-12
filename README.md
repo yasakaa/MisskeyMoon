@@ -1,3 +1,14 @@
+﻿# MisskeyMoon
+
+Misskey 2026.10.1をベースに、Sharkeyの認証・保存形式との互換対応と、表示・操作の独自設定を加えたフォークです。
+
+- [独自機能と使い方](docs/CUSTOM-FEATURES.md)
+- [任意の追加音源の設置方法](docs/OPTIONAL-SOUNDS.md)
+
+このブランチには個別サーバーのDB変換手順・設定・データを含めていません。SharkeyのDBをそのまま投入できることを保証するものではありません。
+
+以下は上流Misskeyの案内です。
+
 <div align="center">
 <a href="https://misskey-hub.net">
 	<img src="./assets/title_float.svg" alt="Misskey logo" style="border-radius:50%" width="300"/>
