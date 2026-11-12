@@ -22,6 +22,8 @@ import type { MiDriveFile } from './DriveFile.js';
 // Not appending `{ concurrent: true }` to `@Index` will not cause any problem in production,
 
 @Index(['userId', 'id']) // Note: this index is ("userId", "id" DESC) in production, but not in test.
+@Index('IDX_migration_pgroonga_note_text', { synchronize: false })
+@Index('IDX_migration_pgroonga_note_cw', { synchronize: false })
 @Entity('note')
 export class MiNote {
 	@PrimaryColumn(id())
@@ -72,8 +74,8 @@ export class MiNote {
 	})
 	public name: string | null;
 
-	@Column('varchar', {
-		length: 512, nullable: true,
+	@Column('text', {
+		nullable: true,
 	})
 	public cw: string | null;
 
@@ -216,8 +218,8 @@ export class MiNote {
 
 	//#region Denormalized fields
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public userHost: string | null;
@@ -229,8 +231,8 @@ export class MiNote {
 	})
 	public replyUserId: MiUser['id'] | null;
 
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public replyUserHost: string | null;
@@ -242,8 +244,8 @@ export class MiNote {
 	})
 	public renoteUserId: MiUser['id'] | null;
 
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public renoteUserHost: string | null;

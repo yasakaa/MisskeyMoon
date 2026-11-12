@@ -51,8 +51,8 @@ export class MiFollowRequest {
 	public withReplies: boolean;
 
 	//#region Denormalized fields
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public followerHost: string | null;
@@ -69,8 +69,8 @@ export class MiFollowRequest {
 	})
 	public followerSharedInbox: string | null;
 
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public followeeHost: string | null;

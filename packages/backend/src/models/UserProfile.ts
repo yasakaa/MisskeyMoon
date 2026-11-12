@@ -12,6 +12,7 @@ import { MiUserList } from './UserList.js';
 
 // TODO: このテーブルで管理している情報すべてレジストリで管理するようにしても良いかも
 //       ただ、「emailVerified が true なユーザーを find する」のようなクエリは書けなくなるからウーン
+@Index('IDX_migration_pgroonga_user_profile_description', { synchronize: false })
 @Entity('user_profile')
 export class MiUserProfile {
 	@PrimaryColumn(id())
@@ -36,8 +37,8 @@ export class MiUserProfile {
 	})
 	public birthday: string | null;
 
-	@Column('varchar', {
-		length: 2048, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: 'The description (bio) of the User.',
 	})
 	public description: string | null;
@@ -286,8 +287,8 @@ export class MiUserProfile {
 
 	//#region Denormalized fields
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public userHost: string | null;

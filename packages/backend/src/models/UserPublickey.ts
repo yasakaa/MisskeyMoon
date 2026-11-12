@@ -19,9 +19,8 @@ export class MiUserPublickey {
 	public user: MiUser | null;
 
 	@Index({ unique: true })
-	@Column('varchar', {
-		length: 256,
-	})
+	@Column('text', {
+		})
 	public keyId: string;
 
 	@Column('varchar', {

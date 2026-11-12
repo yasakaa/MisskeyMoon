@@ -82,15 +82,15 @@ export class MiAbuseUserReport {
 
 	//#region Denormalized fields
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public targetUserHost: string | null;
 
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public reporterHost: string | null;

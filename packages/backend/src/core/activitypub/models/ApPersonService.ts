@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { MAX_REMOTE_BIO_LENGTH } from '@/const.js';
 import { Inject, Injectable } from '@nestjs/common';
 import promiseLimit from 'promise-limit';
 import { DataSource } from 'typeorm';
@@ -50,7 +51,7 @@ import type { ApImageService } from './ApImageService.js';
 import type { IActor, ICollection, IObject, IOrderedCollection } from '../type.js';
 
 const nameLength = 128;
-const summaryLength = 2048;
+const summaryLength = MAX_REMOTE_BIO_LENGTH;
 
 type Field = Record<'name' | 'value', string>;
 

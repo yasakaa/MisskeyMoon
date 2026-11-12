@@ -29,8 +29,8 @@ export class MiDriveFile {
 	public user: MiUser | null;
 
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: 'The host of owner. It will be null if the user in local.',
 	})
 	public userHost: string | null;
@@ -60,8 +60,8 @@ export class MiDriveFile {
 	})
 	public size: number;
 
-	@Column('varchar', {
-		length: 512, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: 'The comment of the DriveFile.',
 	})
 	public comment: string | null;

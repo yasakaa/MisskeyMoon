@@ -60,8 +60,8 @@ export class MiFollowing {
 
 	//#region Denormalized fields
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public followerHost: string | null;
@@ -79,8 +79,8 @@ export class MiFollowing {
 	public followerSharedInbox: string | null;
 
 	@Index()
-	@Column('varchar', {
-		length: 128, nullable: true,
+	@Column('text', {
+		nullable: true,
 		comment: '[Denormalized]',
 	})
 	public followeeHost: string | null;

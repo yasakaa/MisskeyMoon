@@ -24,8 +24,7 @@ export class MiInstance {
 	 * ホスト
 	 */
 	@Index({ unique: true })
-	@Column('varchar', {
-		length: 128,
+	@Column('text', {
 		comment: 'The host of the Instance.',
 	})
 	public host: string;
@@ -134,13 +133,13 @@ export class MiInstance {
 	})
 	public maintainerEmail: string | null;
 
-	@Column('varchar', {
-		length: 256, nullable: true,
+	@Column('text', {
+		nullable: true,
 	})
 	public iconUrl: string | null;
 
-	@Column('varchar', {
-		length: 256, nullable: true,
+	@Column('text', {
+		nullable: true,
 	})
 	public faviconUrl: string | null;
 
