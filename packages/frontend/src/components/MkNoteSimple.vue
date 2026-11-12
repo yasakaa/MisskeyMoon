@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { useConversationCw } from '@/composables/use-conversation-cw.js';
 import * as Misskey from 'misskey-js';
 import MkNoteHeader from '@/components/MkNoteHeader.vue';
 import MkSubNoteContent from '@/components/MkSubNoteContent.vue';
@@ -37,7 +37,7 @@ const props = defineProps<{
 	note: Misskey.entities.Note | null;
 }>();
 
-const showContent = ref(false);
+const showContent = useConversationCw();
 </script>
 
 <style lang="scss" module>

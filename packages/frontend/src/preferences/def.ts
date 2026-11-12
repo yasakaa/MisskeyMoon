@@ -17,6 +17,7 @@ import type { WatermarkPreset } from '@/utility/watermark/WatermarkRenderer.js';
 import type { ImageFramePreset } from '@/utility/image-frame-renderer/ImageFrameRenderer.js';
 import { genId } from '@/utility/id.js';
 import { DEFAULT_DEVICE_KIND } from '@/utility/device-kind.js';
+import { DEFAULT_VISIBILITY_COLORS } from '@/utility/custom-appearance.js';
 import { deepEqual } from '@/utility/deep-equal.js';
 
 /** サウンド設定 */
@@ -57,6 +58,12 @@ type OmitStrict<T, K extends keyof T> = T extends any ? Pick<T, Exclude<keyof T,
 // NOTE: デフォルト値は他の設定の状態に依存してはならない(依存していた場合、ユーザーがその設定項目単体で「初期値にリセット」した場合不具合の原因になる)
 
 export const PREF_DEF = definePreferences({
+	stpvCollapseReplySource: { default: false },
+	stpvNoteEmojiScale: { default: 100 },
+	stpvReactionEmojiScale: { default: 100 },
+	stpvVisibilityColorsEnabled: { default: false },
+	stpvVisibilityColors: { default: { ...DEFAULT_VISIBILITY_COLORS } },
+	stpvVisibilityColorOpacity: { default: 20 },
 	accounts: {
 		default: [] as [host: string, user: {
 			id: string;
@@ -307,7 +314,7 @@ export const PREF_DEF = definePreferences({
 		default: 'medium' as 'small' | 'medium' | 'large',
 	},
 	limitWidthOfReaction: {
-		default: true,
+		default: false,
 	},
 	forceShowAds: {
 		default: false,
@@ -495,7 +502,7 @@ export const PREF_DEF = definePreferences({
 		default: true,
 	},
 	'deck.navWindow': {
-		default: true,
+		default: false,
 	},
 	'deck.useSimpleUiForNonRootPages': {
 		default: true,
@@ -507,7 +514,7 @@ export const PREF_DEF = definePreferences({
 		default: 6,
 	},
 	'deck.menuPosition': {
-		default: 'bottom' as 'right' | 'bottom',
+		default: 'right' as 'right' | 'bottom',
 	},
 	'deck.navbarPosition': {
 		default: 'left' as 'left' | 'top' | 'bottom',

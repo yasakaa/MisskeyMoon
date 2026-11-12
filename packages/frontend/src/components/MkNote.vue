@@ -9,9 +9,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 	ref="rootEl"
 	v-hotkey="keymap"
 	:class="[$style.root, { [$style.showActionsOnlyHover]: prefer.s.showNoteActionsOnlyHover, [$style.skipRender]: prefer.s.skipNoteRender }]"
+	:style="visibilityColorStyle(appearNote)"
 	tabindex="0"
 >
-	<MkNoteSub v-if="appearNote.replyId && !renoteCollapsed" :note="appearNote?.reply ?? null" :class="$style.replyTo"/>
+	<button v-if="appearNote.replyId && !renoteCollapsed" class="_button" :class="$style.replyToggle" :aria-expanded="!replySourceCollapsed" @click.stop="replySourceCollapsed = !replySourceCollapsed">
+		<i :class="replySourceCollapsed ? 'ti ti-chevron-down' : 'ti ti-chevron-up'"></i> {{ replySourceCollapsed ? i18n.ts._customReading.showReplySource : i18n.ts._customReading.hideReplySource }}
+	</button>
+	<MkNoteSub v-if="appearNote.replyId && !renoteCollapsed && !replySourceCollapsed" :note="appearNote?.reply ?? null" :class="$style.replyTo"/>
 	<div v-if="pinned" :class="$style.tip"><i class="ti ti-pin"></i> {{ i18n.ts.pinnedNote }}</div>
 	<div v-if="isRenote" :class="$style.renote">
 		<div v-if="note.channel" :class="$style.colorBar" :style="{ background: note.channel.color }"></div>
@@ -43,7 +47,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<div v-else-if="renoteCollapsed" :class="$style.collapsedRenoteTarget">
 		<MkAvatar :class="$style.collapsedRenoteTargetAvatar" :user="appearNote.user" link preview/>
-		<Mfm :text="getNoteSummary(appearNote)" :plain="true" :nowrap="true" :author="appearNote.user" :nyaize="'respect'" :class="$style.collapsedRenoteTargetText" @click="renoteCollapsed = false"/>
+		<Mfm :style="noteEmojiStyle" :text="getNoteSummary(appearNote)" :plain="true" :nowrap="true" :author="appearNote.user" :nyaize="'respect'" :class="$style.collapsedRenoteTargetText" @click="renoteCollapsed = false"/>
 	</div>
 	<article v-else :class="$style.article" @contextmenu.stop="onContextmenu">
 		<div v-if="appearNote.channel" :class="$style.colorBar" :style="{ background: appearNote.channel.color }"></div>
@@ -53,8 +57,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkInstanceTicker v-if="showTicker" :host="appearNote.user.host" :instance="appearNote.user.instance"/>
 			<div style="container-type: inline-size;">
 				<p v-if="appearNote.cw != null" :class="$style.cw">
-					<Mfm
-						v-if="appearNote.cw != ''"
+					<Mfm v-if="appearNote.cw != ''"
+						:style="noteEmojiStyle"
 						:text="appearNote.cw"
 						:author="appearNote.user"
 						:nyaize="'respect'"
@@ -67,8 +71,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<div :class="$style.text">
 						<span v-if="appearNote.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 						<MkA v-if="appearNote.replyId" :class="$style.replyIcon" :to="`/notes/${appearNote.replyId}`"><i class="ti ti-arrow-back-up"></i></MkA>
-						<Mfm
-							v-if="appearNote.text"
+						<Mfm v-if="appearNote.text"
+							:style="noteEmojiStyle"
 							:parsedNodes="parsed"
 							:text="appearNote.text"
 							:author="appearNote.user"
@@ -82,7 +86,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkLoading v-if="translating" mini/>
 							<div v-else-if="translation">
 								<b>{{ i18n.tsx.translatedFrom({ x: translation.sourceLang }) }}: </b>
-								<Mfm :text="translation.text" :author="appearNote.user" :nyaize="'respect'" :emojiUrls="appearNote.emojis" class="_selectable"/>
+								<Mfm :style="noteEmojiStyle" :text="translation.text" :author="appearNote.user" :nyaize="'respect'" :emojiUrls="appearNote.emojis" class="_selectable"/>
 							</div>
 						</div>
 					</div>
@@ -196,7 +200,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { inject, ref, useTemplateRef, provide, computed } from 'vue';
+import { noteEmojiStyle, visibilityColorStyle } from '@/utility/custom-note-style.js';
+import { inject, ref, useTemplateRef, watch, provide, computed } from 'vue';
 import type { Ref } from 'vue';
 import * as Misskey from 'misskey-js';
 import { useNote } from '@/composables/use-note.js';
@@ -298,6 +303,9 @@ const {
 	currentAntenna,
 });
 
+const replySourceCollapsed = ref(prefer.s.stpvCollapseReplySource);
+watch(() => prefer.s.stpvCollapseReplySource, value => { replySourceCollapsed.value = value; });
+
 // provide
 provide(DI.mfmEmojiReactCallback, reactViaMfmEmoji);
 
@@ -377,6 +385,13 @@ const keymap = {
 </script>
 
 <style lang="scss" module>
+.replyToggle {
+	display: block;
+	padding: 8px 16px;
+	font-size: 0.85em;
+	color: var(--MI_THEME-fgTransparentWeak);
+}
+
 .root {
 	position: relative;
 	font-size: 1.05em;

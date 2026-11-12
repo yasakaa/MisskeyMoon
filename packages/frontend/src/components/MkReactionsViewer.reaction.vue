@@ -9,15 +9,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-ripple="canToggle"
 	class="_button"
 	:class="[$style.root, { [$style.reacted]: myReaction == reaction, [$style.canToggle]: canToggle, [$style.small]: prefer.s.reactionsDisplaySize === 'small', [$style.large]: prefer.s.reactionsDisplaySize === 'large' }]"
+	:style="reactionButtonStyle"
 	@click="toggleReaction()"
 	@contextmenu.prevent.stop="menu"
 >
-	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[emojiName]"/>
+	<MkReactionIcon :style="reactionEmojiStyle" :class="$style.emoji" :reaction="reaction" :emojiUrl="reactionEmojis[emojiName]"/>
 	<span :class="$style.count">{{ count }}</span>
 </button>
 </template>
 
 <script lang="ts" setup>
+import { emojiScale } from '@/utility/custom-appearance.js';
 import { computed, inject, onMounted, useTemplateRef, watch } from 'vue';
 import * as Misskey from 'misskey-js';
 import { getUnicodeEmojiOrNull } from '@@/js/emojilist.js';
@@ -41,6 +43,18 @@ import { noteEvents } from '@/composables/use-note-capture.js';
 import { mute as muteEmoji, unmute as unmuteEmoji, checkMuted as isEmojiMuted } from '@/utility/emoji-mute.js';
 import { addToEmojiPalette } from '@/utility/emoji-palette.js';
 import { haptic } from '@/utility/haptic.js';
+
+const reactionScale = computed(() => emojiScale(prefer.s.stpvReactionEmojiScale));
+const nativeReaction = computed(() => prefer.s.emojiStyle === 'native' && !props.reaction.startsWith(':'));
+const reactionEmojiStyle = computed(() => ({
+	pointerEvents: 'none' as const,
+	height: nativeReaction.value ? undefined : `${1.5 * reactionScale.value}em`,
+	fontSize: nativeReaction.value ? `${1.5 * reactionScale.value}em` : undefined,
+	maxWidth: prefer.s.limitWidthOfReaction ? `${70 * reactionScale.value}px` : undefined,
+}));
+const reactionButtonStyle = computed(() => ({
+	minHeight: `${(prefer.s.reactionsDisplaySize === 'small' ? 32 : prefer.s.reactionsDisplaySize === 'large' ? 52 : 42) * reactionScale.value}px`,
+}));
 
 const props = defineProps<{
 	noteId: Misskey.entities.Note['id'];
@@ -324,8 +338,9 @@ if (!mock) {
 	}
 }
 
-.limitWidth {
-	max-width: 70px;
+.emoji {
+	width: auto;
+	min-width: 0;
 	object-fit: contain;
 }
 

@@ -9,15 +9,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 	ref="rootEl"
 	v-hotkey="keymap"
 	:class="$style.root"
+	:style="visibilityColorStyle(appearNote)"
 	tabindex="0"
 >
-	<div v-if="appearNote.reply && appearNote.reply.replyId">
+	<button v-if="appearNote.replyId" class="_button" :class="$style.replyToggle" :aria-expanded="!replySourceCollapsed" @click.stop="replySourceCollapsed = !replySourceCollapsed">
+		<i :class="replySourceCollapsed ? 'ti ti-chevron-down' : 'ti ti-chevron-up'"></i> {{ replySourceCollapsed ? i18n.ts._customReading.showReplySource : i18n.ts._customReading.hideReplySource }}
+	</button>
+	<div v-if="appearNote.reply && appearNote.reply.replyId && !replySourceCollapsed">
 		<div v-if="!conversationLoaded" style="padding: 16px">
 			<MkButton style="margin: 0 auto;" primary rounded @click="loadConversation">{{ i18n.ts.loadConversation }}</MkButton>
 		</div>
 		<MkNoteSub v-for="note in conversation" :key="note.id" :class="$style.replyToMore" :note="note"/>
 	</div>
-	<MkNoteSub v-if="appearNote.replyId" :note="appearNote?.reply ?? null" :class="$style.replyTo"/>
+	<MkNoteSub v-if="appearNote.replyId && !replySourceCollapsed" :note="appearNote?.reply ?? null" :class="$style.replyTo"/>
 	<div v-if="isRenote" :class="$style.renote">
 		<MkAvatar :class="$style.renoteAvatar" :user="note.user" link preview/>
 		<i class="ti ti-repeat" style="margin-right: 4px;"></i>
@@ -78,8 +82,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</header>
 			<div :class="$style.noteContent">
 				<p v-if="appearNote.cw != null" :class="$style.cw">
-					<Mfm
-						v-if="appearNote.cw != ''"
+					<Mfm v-if="appearNote.cw != ''"
+						:style="noteEmojiStyle"
 						:text="appearNote.cw"
 						:author="appearNote.user"
 						:nyaize="'respect'"
@@ -91,8 +95,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div v-show="appearNote.cw == null || showContent">
 					<span v-if="appearNote.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 					<MkA v-if="appearNote.replyId" :class="$style.noteReplyTarget" :to="`/notes/${appearNote.replyId}`"><i class="ti ti-arrow-back-up"></i></MkA>
-					<Mfm
-						v-if="appearNote.text"
+					<Mfm v-if="appearNote.text"
+						:style="noteEmojiStyle"
 						:parsedNodes="parsed"
 						:text="appearNote.text"
 						:author="appearNote.user"
@@ -107,7 +111,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<MkLoading v-if="translating" mini/>
 						<div v-else-if="translation">
 							<b>{{ i18n.tsx.translatedFrom({ x: translation.sourceLang }) }}: </b>
-							<Mfm :text="translation.text" :author="appearNote.user" :nyaize="'respect'" :emojiUrls="appearNote.emojis" class="_selectable"/>
+							<Mfm :style="noteEmojiStyle" :text="translation.text" :author="appearNote.user" :nyaize="'respect'" :emojiUrls="appearNote.emojis" class="_selectable"/>
 						</div>
 					</div>
 					<div v-if="appearNote.files && appearNote.files.length > 0">
@@ -239,8 +243,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { inject, provide, ref, useTemplateRef, markRaw, computed } from 'vue';
+import { noteEmojiStyle, visibilityColorStyle } from '@/utility/custom-note-style.js';
+import { toRef, inject, provide, ref, useTemplateRef, watch, markRaw, computed } from 'vue';
 import * as Misskey from 'misskey-js';
+import { conversationCwKey, useConversationCw } from '@/composables/use-conversation-cw.js';
 import { useNote } from '@/composables/use-note.js';
 import { prefer } from '@/preferences.js';
 import { i18n } from '@/i18n.js';
@@ -269,9 +275,11 @@ import MkButton from '@/components/MkButton.vue';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
+	expandAllCws?: boolean;
 	initialTab?: 'replies' | 'renotes' | 'reactions';
 }>(), {
 	initialTab: 'replies',
+	expandAllCws: undefined,
 });
 
 // 周辺コンテキストのインジェクト
@@ -325,6 +333,13 @@ const {
 }, {
 	inChannel,
 });
+
+const cwControl = toRef(props, 'expandAllCws');
+provide(conversationCwKey, cwControl);
+useConversationCw(cwControl, showContent);
+
+const replySourceCollapsed = ref(prefer.s.stpvCollapseReplySource);
+watch(() => prefer.s.stpvCollapseReplySource, value => { replySourceCollapsed.value = value; });
 
 // provide
 provide(DI.mfmEmojiReactCallback, reactViaMfmEmoji);
@@ -400,6 +415,13 @@ const keymap = {
 </script>
 
 <style lang="scss" module>
+.replyToggle {
+	display: block;
+	padding: 8px 16px;
+	font-size: 0.85em;
+	color: var(--MI_THEME-fgTransparentWeak);
+}
+
 .root {
 	position: relative;
 	transition: box-shadow 0.1s ease;

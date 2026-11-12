@@ -13465,4 +13465,104 @@ export interface Locale extends ILocale {
          */
         "mfm": string;
     };
+    "_customSettings": {
+        /**
+         * 独自設定
+         */
+        "title": string;
+        /**
+         * このクライアントの表示設定です。現在の設定プロファイルに保存され、他の利用者の画面や投稿の公開範囲は変更しません。
+         */
+        "description": string;
+        /**
+         * 絵文字サイズ
+         */
+        "emojiSize": string;
+        /**
+         * 絵文字の表示例
+         */
+        "sample": string;
+        /**
+         * 本文のカスタム絵文字
+         */
+        "noteEmoji": string;
+        /**
+         * リアクション絵文字
+         */
+        "reactionEmoji": string;
+        /**
+         * 横長のリアクション絵文字の幅を制限する
+         */
+        "limitReactionWidth": string;
+        /**
+         * 公開範囲ごとの背景色
+         */
+        "visibilityColors": string;
+        /**
+         * 公開範囲で投稿を色分けする
+         */
+        "enableColors": string;
+        /**
+         * 色の濃さ
+         */
+        "opacity": string;
+        /**
+         * 自分だけ
+         */
+        "onlyMe": string;
+        /**
+         * 効果音の設定（garo音源を含む）
+         */
+        "sounds": string;
+        /**
+         * 独自の表示設定を初期値に戻す
+         */
+        "reset": string;
+    };
+    "_customReading": {
+        /**
+         * 投稿の読みやすさ
+         */
+        "title": string;
+        /**
+         * 返信元の投稿を折りたたむ
+         */
+        "collapseReplySource": string;
+        /**
+         * タイムラインと投稿詳細で返信元を最初は隠します。投稿ごとに展開できます。
+         */
+        "collapseReplySourceDescription": string;
+        /**
+         * 返信元を表示
+         */
+        "showReplySource": string;
+        /**
+         * 返信元を隠す
+         */
+        "hideReplySource": string;
+        /**
+         * 会話内のCWをすべて開く
+         */
+        "expandAllCws": string;
+        /**
+         * 会話内のCWをすべて閉じる
+         */
+        "collapseAllCws": string;
+        /**
+         * ドライブ内を検索
+         */
+        "driveSearch": string;
+        /**
+         * 今のフォルダー内のファイル名・画像説明（ALT）を検索します。サブフォルダー内は含みません。
+         */
+        "driveSearchDescription": string;
+        /**
+         * 検索を解除
+         */
+        "clearSearch": string;
+        /**
+         * 一致するファイルはありません
+         */
+        "noFilesFound": string;
+    };
 }

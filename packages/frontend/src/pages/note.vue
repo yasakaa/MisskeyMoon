@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</div>
 					<div class="_margin _gaps_s">
 						<MkRemoteCaution v-if="note.user.host != null" :href="note.url ?? note.uri"/>
-						<MkNoteDetailed :key="note.id" v-model:note="note" :initialTab="initialTab" :class="$style.note"/>
+						<MkNoteDetailed :key="note.id" v-model:note="note" :expandAllCws="expandAllCws" :initialTab="initialTab" :class="$style.note"/>
 					</div>
 					<div v-if="clips && clips.length > 0" class="_margin">
 						<div style="font-weight: bold; padding: 12px;">{{ i18n.ts.clip }}</div>
@@ -75,6 +75,7 @@ const props = defineProps<{
 const note = ref<null | Misskey.entities.Note>(CTX_NOTE);
 const clips = ref<Misskey.entities.Clip[]>();
 const showPrev = ref<'user' | 'channel' | false>(false);
+const expandAllCws = ref<boolean>();
 const showNext = ref<'user' | 'channel' | false>(false);
 const initialTab = computed<'reactions' | 'replies' | 'renotes' | undefined>(() => {
 	if (['reactions', 'replies', 'renotes'].includes(props.initialTab ?? '')) {
@@ -119,6 +120,7 @@ const nextChannelPaginator = markRaw(new Paginator('channels/timeline', {
 }));
 
 function fetchNote() {
+	expandAllCws.value = undefined;
 	showPrev.value = false;
 	showNext.value = false;
 	note.value = null;
@@ -160,7 +162,11 @@ watch(() => props.noteId, fetchNote, {
 	immediate: true,
 });
 
-const headerActions = computed(() => []);
+const headerActions = computed(() => note.value ? [{
+	icon: expandAllCws.value ? 'ti ti-eye-off' : 'ti ti-eye',
+	text: expandAllCws.value ? i18n.ts._customReading.collapseAllCws : i18n.ts._customReading.expandAllCws,
+	handler: () => { expandAllCws.value = !expandAllCws.value; },
+}] : []);
 
 const headerTabs = computed(() => []);
 

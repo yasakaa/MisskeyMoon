@@ -240,7 +240,7 @@ function unmute() {
 
 <style lang="scss" module>
 .root {
-	height: 2em;
+	height: var(--stpv-note-emoji-height, 2em);
 	vertical-align: middle;
 	-webkit-user-drag: none;
 	transition: transform 0.2s ease;

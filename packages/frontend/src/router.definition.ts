@@ -137,6 +137,10 @@ export const ROUTE_DEF = [{
 		name: 'statusbar',
 		component: page(() => import('@/pages/settings/statusbar.vue')),
 	}, {
+		path: '/custom',
+		name: 'custom',
+		component: page(() => import('@/pages/settings/custom.vue')),
+	}, {
 		path: '/sounds',
 		name: 'sounds',
 		component: page(() => import('@/pages/settings/sounds.vue')),
