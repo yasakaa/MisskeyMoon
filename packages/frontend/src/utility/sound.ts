@@ -7,12 +7,21 @@ import type { SoundStore } from '@/preferences/def.js';
 import { prefer } from '@/preferences.js';
 import { PREF_DEF } from '@/preferences/def.js';
 import { getInitialPrefValue } from '@/preferences/manager.js';
+import { soundAssetUrl } from '@/utility/sound-asset-url.js';
 
 let ctx: AudioContext;
 const cache = new Map<string, AudioBuffer>();
 let canPlay = true;
 
-export const soundsTypes = [
+// 運営者が別途設置したMP3だけをビルド時に登録する。音源自体はGit管理しない。
+// garoは既存設定の互換用、customは任意の追加音源用。追加・改名後は再ビルドが必要。
+const optionalSounds = Object.keys(import.meta.glob(['/assets/sounds/garo/**/*.mp3', '/assets/sounds/custom/**/*.mp3'], {
+	query: '?url',
+	import: 'default',
+	eager: true,
+})).map(path => path.replace('/assets/sounds/', '').replace(/\.mp3$/, '') as `garo/${string}` | `custom/${string}`).sort();
+
+const soundCandidates = [
 	// 音声なし
 	null,
 
@@ -72,6 +81,8 @@ export const soundsTypes = [
 	'noizenecio/kick_gaba6',
 	'noizenecio/kick_gaba7',
 ] as const;
+
+export const soundsTypes = [...soundCandidates, ...optionalSounds];
 
 export const operationTypes = [
 	'noteMy',
@@ -174,7 +185,7 @@ async function playMisskeySfxFileInternal(soundStore: SoundStore): Promise<boole
 	if (isMute() || masterVolume === 0 || soundStore.volume === 0) {
 		return true; // ミュート時は成功として扱う
 	}
-	const url = soundStore.type === '_driveFile_' ? soundStore.fileUrl : `/client-assets/sounds/${soundStore.type}.mp3`;
+	const url = soundStore.type === '_driveFile_' ? soundStore.fileUrl : soundAssetUrl(soundStore.type);
 	const buffer = await loadAudio(url).catch(() => {
 		return undefined;
 	});
