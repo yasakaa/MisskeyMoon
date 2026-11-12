@@ -3,7 +3,16 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-export const MAX_NOTE_TEXT_LENGTH = 3000;
+import { loadConfig } from './config.js';
+
+const textLimits = loadConfig();
+
+export const MAX_NOTE_TEXT_LENGTH = textLimits.maxNoteLength;
+export const MAX_CW_TEXT_LENGTH = textLimits.maxCwLength;
+export const MAX_IMAGE_COMMENT_LENGTH = textLimits.maxAltTextLength;
+export const MAX_BIO_LENGTH = textLimits.maxBioLength;
+export const MAX_REMOTE_CW_LENGTH = textLimits.maxRemoteCwLength;
+export const MAX_REMOTE_BIO_LENGTH = textLimits.maxRemoteBioLength;
 
 export const USER_ONLINE_THRESHOLD = 1000 * 60 * 10; // 10min
 export const USER_ACTIVE_THRESHOLD = 1000 * 60 * 60 * 24 * 3; // 3days
@@ -11,19 +20,19 @@ export const USER_ACTIVE_THRESHOLD = 1000 * 60 * 60 * 24 * 3; // 3days
 export const PER_NOTE_REACTION_USER_PAIR_CACHE_MAX = 16;
 
 //#region hard limits
-// If you change DB_* values, you must also change the DB schema.
+// Remote ingestion bounds; storage columns use text and do not shrink existing data.
 
 /**
  * Maximum note text length that can be stored in DB.
  * Surrogate pairs count as one
  */
-export const DB_MAX_NOTE_TEXT_LENGTH = 8192;
+export const DB_MAX_NOTE_TEXT_LENGTH = textLimits.maxRemoteNoteLength;
 
 /**
  * Maximum image description length that can be stored in DB.
  * Surrogate pairs count as one
  */
-export const DB_MAX_IMAGE_COMMENT_LENGTH = 512;
+export const DB_MAX_IMAGE_COMMENT_LENGTH = textLimits.maxRemoteAltTextLength;
 //#endregion
 
 export const FILE_TYPE_IMAGE = [

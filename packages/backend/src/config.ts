@@ -4,6 +4,7 @@
  */
 
 import * as fs from 'node:fs';
+import { resolveTextLimits, type TextLimits } from './misc/text-limits.js';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { type FastifyServerOptions } from 'fastify';
@@ -33,7 +34,7 @@ type SentryBackendConfig = {
 /**
  * 設定ファイルの型
  */
-type Source = {
+type Source = Partial<TextLimits> & {
 	url?: string;
 	port?: number;
 	socket?: string;
@@ -131,7 +132,7 @@ type Source = {
 	}
 };
 
-export type Config = {
+export type Config = TextLimits & {
 	url: string;
 	port: number;
 	socket: string | undefined;
@@ -289,6 +290,7 @@ export function loadConfig(): Config {
 	const redis = convertRedisOptions(config.redis, host);
 
 	return {
+		...resolveTextLimits(config),
 		version,
 		publishTarballInsteadOfProvideRepositoryUrl: !!config.publishTarballInsteadOfProvideRepositoryUrl,
 		setupPassword: config.setupPassword,

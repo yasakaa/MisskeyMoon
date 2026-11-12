@@ -5,7 +5,7 @@
 
 import ms from 'ms';
 import { Inject, Injectable } from '@nestjs/common';
-import { DB_MAX_IMAGE_COMMENT_LENGTH } from '@/const.js';
+import { MAX_IMAGE_COMMENT_LENGTH } from '@/const.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { DriveFileEntityService } from '@/core/entities/DriveFileEntityService.js';
@@ -77,7 +77,7 @@ export const paramDef = {
 	properties: {
 		folderId: { type: 'string', format: 'misskey:id', nullable: true, default: null },
 		name: { type: 'string', nullable: true, default: null },
-		comment: { type: 'string', nullable: true, maxLength: DB_MAX_IMAGE_COMMENT_LENGTH, default: null },
+		comment: { type: 'string', nullable: true, maxLength: MAX_IMAGE_COMMENT_LENGTH, default: null },
 		isSensitive: { type: 'boolean', default: false },
 		force: { type: 'boolean', default: false },
 	},

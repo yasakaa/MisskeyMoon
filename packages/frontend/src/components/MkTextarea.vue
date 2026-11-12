@@ -26,12 +26,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 		></textarea>
 	</div>
 	<div :class="$style.caption"><slot name="caption"></slot></div>
+	<div v-if="maxLength != null" :class="$style.caption" :style="{ color: overLimit ? 'var(--MI_THEME-error)' : undefined }">{{ textLength }} / {{ maxLength }}</div>
 	<button v-if="mfmPreview" style="font-size: 0.85em;" class="_textButton" type="button" @click="preview = !preview">{{ i18n.ts.preview }}</button>
 	<div v-if="mfmPreview" v-show="preview" v-panel :class="$style.mfmPreview">
 		<Mfm :text="v"/>
 	</div>
 
-	<MkButton v-if="manualSave && changed" primary :class="$style.save" @click="updated"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
+	<MkButton v-if="manualSave && changed" primary :disabled="overLimit" :class="$style.save" @click="updated"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
 </div>
 </template>
 
@@ -45,6 +46,7 @@ import { Autocomplete } from '@/utility/autocomplete.js';
 
 const props = defineProps<{
 	modelValue: string | null;
+	maxLength?: number;
 	required?: boolean;
 	readonly?: boolean;
 	disabled?: boolean;
@@ -110,11 +112,14 @@ function onKeydown(ev: KeyboardEvent) {
 }
 
 function updated() {
+	if (props.manualSave && overLimit.value) return;
 	changed.value = false;
 	emit('update:modelValue', v.value ?? '');
 }
 
 const debouncedUpdated = debounce(1000, updated);
+const textLength = computed(() => Array.from(v.value ?? '').length);
+const overLimit = computed(() => props.maxLength != null && textLength.value > props.maxLength);
 
 watch(modelValue, newValue => {
 	v.value = newValue ?? '';

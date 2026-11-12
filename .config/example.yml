@@ -247,6 +247,17 @@ redis:
 #   ┌───────────────────────────────┐
 #───┘ Fulltext search configuration └─────────────────────────────
 
+# Sharkey-compatible character limits (positive integers; restart after editing).
+# Remote limits must be at least the corresponding local limits.
+maxNoteLength: 3000
+maxRemoteNoteLength: 100000
+maxCwLength: 500
+maxRemoteCwLength: 5000
+maxAltTextLength: 20000
+maxRemoteAltTextLength: 100000
+maxBioLength: 1500
+maxRemoteBioLength: 15000
+
 # These are the setting items for the full-text search provider.
 fulltextSearch:
   # You can select the ID generation method.

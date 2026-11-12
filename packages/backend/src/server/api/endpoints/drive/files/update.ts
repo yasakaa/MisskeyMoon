@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { MAX_IMAGE_COMMENT_LENGTH } from '@/const.js';
 import { Inject, Injectable } from '@nestjs/common';
 import type { DriveFilesRepository } from '@/models/_.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
@@ -65,7 +66,7 @@ export const paramDef = {
 		folderId: { type: 'string', format: 'misskey:id', nullable: true },
 		name: { type: 'string' },
 		isSensitive: { type: 'boolean' },
-		comment: { type: 'string', nullable: true, maxLength: 512 },
+		comment: { type: 'string', nullable: true, maxLength: MAX_IMAGE_COMMENT_LENGTH },
 	},
 	required: ['fileId'],
 } as const;

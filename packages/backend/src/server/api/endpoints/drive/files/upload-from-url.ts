@@ -4,6 +4,7 @@
  */
 
 import ms from 'ms';
+import { MAX_IMAGE_COMMENT_LENGTH } from '@/const.js';
 import { Injectable } from '@nestjs/common';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
@@ -33,7 +34,7 @@ export const paramDef = {
 		url: { type: 'string' },
 		folderId: { type: 'string', format: 'misskey:id', nullable: true, default: null },
 		isSensitive: { type: 'boolean', default: false },
-		comment: { type: 'string', nullable: true, maxLength: 512, default: null },
+		comment: { type: 'string', nullable: true, maxLength: MAX_IMAGE_COMMENT_LENGTH, default: null },
 		marker: { type: 'string', nullable: true, default: null },
 		force: { type: 'boolean', default: false },
 	},

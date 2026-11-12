@@ -7,7 +7,7 @@ import { Injectable } from '@nestjs/common';
 import ms from 'ms';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { NoteDraftService } from '@/core/NoteDraftService.js';
-import { MAX_NOTE_TEXT_LENGTH } from '@/const.js';
+import { MAX_NOTE_TEXT_LENGTH, MAX_CW_TEXT_LENGTH } from '@/const.js';
 import { ApiError } from '@/server/api/error.js';
 import { NoteDraftEntityService } from '@/core/entities/NoteDraftEntityService.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
@@ -162,7 +162,7 @@ export const paramDef = {
 		visibleUserIds: { type: 'array', uniqueItems: true, items: {
 			type: 'string', format: 'misskey:id',
 		} },
-		cw: { type: 'string', nullable: true, minLength: 1, maxLength: 100 },
+		cw: { type: 'string', nullable: true, minLength: 1, maxLength: MAX_CW_TEXT_LENGTH },
 		hashtag: { type: 'string', nullable: true, maxLength: 200 },
 		localOnly: { type: 'boolean', default: false },
 		reactionAcceptance: { type: 'string', nullable: true, enum: [null, 'likeOnly', 'likeOnlyForRemote', 'nonSensitiveOnly', 'nonSensitiveOnlyForLocalLikeOnlyForRemote'], default: null },

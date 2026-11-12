@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</SearchMarker>
 
 		<SearchMarker :keywords="['description', 'bio']">
-			<MkTextarea v-model="profile.description" :max="500" tall manualSave mfmAutocomplete :mfmPreview="true">
+			<MkTextarea v-model="profile.description" :maxLength="instance?.maxBioLength ?? 1500" tall manualSave mfmAutocomplete :mfmPreview="true">
 				<template #label><SearchLabel>{{ i18n.ts._profile.description }}</SearchLabel></template>
 				<template #caption>{{ i18n.ts._profile.youCanIncludeHashtags }}</template>
 			</MkTextarea>
@@ -162,6 +162,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
+import { instance } from '@/instance.js';
 import { computed, reactive, ref, watch } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkButton from '@/components/MkButton.vue';

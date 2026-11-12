@@ -293,7 +293,7 @@ const submitIcon = computed((): string => {
 });
 
 const textLength = computed((): number => {
-	return (text.value + imeText.value).length;
+	return Array.from(text.value + imeText.value).length;
 });
 
 const maxTextLength = computed((): number => {
@@ -301,10 +301,10 @@ const maxTextLength = computed((): number => {
 });
 
 const cwTextLength = computed((): number => {
-	return cw.value?.length ?? 0;
+	return Array.from(cw.value ?? '').length;
 });
 
-const maxCwTextLength = 100;
+const maxCwTextLength = computed(() => instance?.maxCwTextLength ?? 500);
 
 const canPost = computed((): boolean => {
 	return !props.mock && !posting.value && !posted.value && !uploader.uploading.value && (uploader.items.value.length === 0 || uploader.readyForUpload.value) &&
@@ -321,7 +321,7 @@ const canPost = computed((): boolean => {
 			useCw.value ?
 				(
 					cw.value != null && cw.value.trim() !== '' &&
-					cwTextLength.value <= maxCwTextLength
+					cwTextLength.value <= maxCwTextLength.value
 				) : true
 		) &&
 		(files.value.length <= 16) &&

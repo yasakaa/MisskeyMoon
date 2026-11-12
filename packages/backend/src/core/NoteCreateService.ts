@@ -44,7 +44,8 @@ import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { ApDeliverManagerService } from '@/core/activitypub/ApDeliverManagerService.js';
 import { RemoteUserResolveService } from '@/core/RemoteUserResolveService.js';
 import { bindThis } from '@/decorators.js';
-import { DB_MAX_NOTE_TEXT_LENGTH } from '@/const.js';
+import { truncate } from '@/misc/truncate.js';
+import { DB_MAX_NOTE_TEXT_LENGTH, MAX_NOTE_TEXT_LENGTH, MAX_REMOTE_CW_LENGTH } from '@/const.js';
 import { RoleService } from '@/core/RoleService.js';
 import { SearchService } from '@/core/SearchService.js';
 import { FeaturedService } from '@/core/FeaturedService.js';
@@ -572,10 +573,9 @@ export class NoteCreateService implements OnApplicationShutdown {
 			}
 		}
 
+		if (user.host !== null && data.cw) data.cw = truncate(data.cw, MAX_REMOTE_CW_LENGTH);
 		if (data.text) {
-			if (data.text.length > DB_MAX_NOTE_TEXT_LENGTH) {
-				data.text = data.text.slice(0, DB_MAX_NOTE_TEXT_LENGTH);
-			}
+			data.text = truncate(data.text, user.host === null ? MAX_NOTE_TEXT_LENGTH : DB_MAX_NOTE_TEXT_LENGTH);
 			data.text = data.text.trim();
 			if (data.text === '') {
 				data.text = null;

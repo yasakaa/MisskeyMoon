@@ -155,6 +155,18 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: true,
 		},
+		maxCwTextLength: {
+			type: 'number',
+			optional: false, nullable: false,
+		},
+		maxAltTextLength: {
+			type: 'number',
+			optional: false, nullable: false,
+		},
+		maxBioLength: {
+			type: 'number',
+			optional: false, nullable: false,
+		},
 		maxNoteTextLength: {
 			type: 'number',
 			optional: false, nullable: false,
