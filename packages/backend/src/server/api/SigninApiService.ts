@@ -4,7 +4,7 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import bcrypt from 'bcryptjs';
+import { verifyPassword } from '@/misc/password-hash.js';
 import { IsNull } from 'typeorm';
 import * as Misskey from 'misskey-js';
 import { DI } from '@/di-symbols.js';
@@ -165,7 +165,7 @@ export class SigninApiService {
 		}
 
 		// Compare password
-		const same = await bcrypt.compare(password, profile.password!);
+		const same = await verifyPassword(password, profile.password!);
 
 		const fail = async (status?: number, failure?: { id: string; }) => {
 			// Append signin history

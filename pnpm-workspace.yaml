@@ -13,6 +13,7 @@ packages:
   - packages/misskey-bubble-game
   - packages-private/*
 allowBuilds:
+  argon2: true
   '@nestjs/core': true
   '@parcel/watcher': true
   '@sentry/profiling-node': true

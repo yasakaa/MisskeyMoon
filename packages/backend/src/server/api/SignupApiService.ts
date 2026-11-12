@@ -4,7 +4,7 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '@/misc/password-hash.js';
 import { IsNull, LessThanOrEqual } from 'typeorm';
 import { DI } from '@/di-symbols.js';
 import type { RegistrationTicketsRepository, UsedUsernamesRepository, UserPendingsRepository, UserProfilesRepository, UsersRepository, MiRegistrationTicket, MiMeta } from '@/models/_.js';
@@ -192,8 +192,7 @@ export class SignupApiService {
 			const code = secureRndstr(16, { chars: L_CHARS });
 
 			// Generate hash of password
-			const salt = await bcrypt.genSalt(8);
-			const hash = await bcrypt.hash(password, salt);
+			const hash = await hashPassword(password);
 
 			if (ticket && !await this.claimRegistrationTicket(ticket)) {
 				reply.code(400);

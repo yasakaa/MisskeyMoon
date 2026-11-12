@@ -8,7 +8,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { OnApplicationShutdown } from '@nestjs/common';
 import { DataSource, IsNull } from 'typeorm';
 import * as Redis from 'ioredis';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '@/misc/password-hash.js';
 import { MiLocalUser, MiUser } from '@/models/User.js';
 import { MiSystemAccount, MiUsedUsername, MiUserKeypair, MiUserProfile, type UsersRepository, type SystemAccountsRepository } from '@/models/_.js';
 import type { MiMeta, UserProfilesRepository } from '@/models/_.js';
@@ -113,8 +113,7 @@ export class SystemAccountService implements OnApplicationShutdown {
 		const password = randomUUID();
 
 		// Generate hash of password
-		const salt = await bcrypt.genSalt(8);
-		const hash = await bcrypt.hash(password, salt);
+		const hash = await hashPassword(password);
 
 		// Generate secret
 		const secret = generateNativeUserToken();

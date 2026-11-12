@@ -4,7 +4,7 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '@/misc/password-hash.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { ApiError } from '@/server/api/error.js';
 import type { UsersRepository, UserProfilesRepository, MiMeta } from '@/models/_.js';
@@ -84,7 +84,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			const passwd = secureRndstr(8);
 
 			// Generate hash of password
-			const hash = bcrypt.hashSync(passwd);
+			const hash = await hashPassword(passwd);
 
 			await this.userProfilesRepository.update({
 				userId: user.id,

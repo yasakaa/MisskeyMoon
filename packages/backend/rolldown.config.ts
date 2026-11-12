@@ -98,6 +98,8 @@ export default defineConfig((args) => {
 		'aws-sdk',
 		'nock',
 		'sharp',
+		// Native addon resolves its prebuild relative to its installed package.
+		'argon2',
 		'jsdom',
 		're2',
 		'ipaddr.js',
