@@ -4,11 +4,13 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
+import { Brackets } from 'typeorm';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import type { DriveFilesRepository } from '@/models/_.js';
 import { QueryService } from '@/core/QueryService.js';
 import { DriveFileEntityService } from '@/core/entities/DriveFileEntityService.js';
 import { DI } from '@/di-symbols.js';
+import { sqlLikeEscape } from '@/misc/sql-like-escape.js';
 
 export const meta = {
 	tags: ['drive'],
@@ -39,6 +41,7 @@ export const paramDef = {
 		folderId: { type: 'string', format: 'misskey:id', nullable: true, default: null },
 		type: { type: 'string', nullable: true, pattern: /^[a-zA-Z\/\-*]+$/.toString().slice(1, -1) },
 		sort: { type: 'string', nullable: true, enum: ['+createdAt', '-createdAt', '+name', '-name', '+size', '-size', null] },
+		searchQuery: { type: 'string', maxLength: 1000, default: '', description: 'Literal, case-insensitive substring to find in filenames or descriptions within the selected folder.' },
 	},
 	required: [],
 } as const;
@@ -68,6 +71,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				} else {
 					query.andWhere('file.type = :type', { type: ps.type });
 				}
+			}
+
+			if (ps.searchQuery.trim() !== '') {
+				const searchQuery = `%${sqlLikeEscape(ps.searchQuery.trim())}%`;
+				query.andWhere(new Brackets(q => {
+					q.where('file.name ILIKE :searchQuery', { searchQuery })
+						.orWhere('file.comment ILIKE :searchQuery', { searchQuery });
+				}));
 			}
 
 			switch (ps.sort) {

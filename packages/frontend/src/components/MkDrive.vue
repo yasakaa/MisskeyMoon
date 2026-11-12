@@ -32,6 +32,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</template>
 
 	<div>
+		<div v-if="select !== 'folder'" :class="$style.search">
+			<MkInput v-model="searchQuery" type="search" :disabled="fetching" @enter="searchFiles">
+				<template #label>{{ i18n.ts._customReading.driveSearch }}</template>
+				<template #prefix><i class="ti ti-search"></i></template>
+				<template #caption>{{ i18n.ts._customReading.driveSearchDescription }}</template>
+			</MkInput>
+			<div class="_buttons">
+				<MkButton :disabled="fetching || searchQuery.trim().length > 1000" @click="searchFiles">{{ i18n.ts.search }}</MkButton>
+				<MkButton v-if="searchQuery || activeSearchQuery" :disabled="fetching" @click="clearSearch">{{ i18n.ts._customReading.clearSearch }}</MkButton>
+			</div>
+		</div>
 		<div v-if="select === 'folder'">
 			<template v-if="folder == null">
 				<MkButton v-if="!isRootSelected" @click="isRootSelected = true">
@@ -148,10 +159,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 				{{ i18n.ts.loadMore }}
 			</MkButton>
 
-			<div v-if="filesPaginator.items.value.length == 0 && foldersPaginator.items.value.length == 0 && !fetching" :class="$style.empty">
+			<div v-if="filesPaginator.items.value.length == 0 && (activeSearchQuery || foldersPaginator.items.value.length == 0) && !fetching" :class="$style.empty">
 				<div v-if="draghover">{{ i18n.ts.dropHereToUpload }}</div>
-				<div v-if="!draghover && folder == null"><strong>{{ i18n.ts.emptyDrive }}</strong></div>
-				<div v-if="!draghover && folder != null">{{ i18n.ts.emptyFolder }}</div>
+				<div v-if="!draghover && activeSearchQuery">{{ i18n.ts._customReading.noFilesFound }}</div>
+				<div v-if="!draghover && !activeSearchQuery && folder == null"><strong>{{ i18n.ts.emptyDrive }}</strong></div>
+				<div v-if="!draghover && !activeSearchQuery && folder != null">{{ i18n.ts.emptyFolder }}</div>
 			</div>
 		</div>
 		<MkLoading v-if="fetching"/>
@@ -170,6 +182,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { nextTick, onActivated, onBeforeUnmount, onMounted, ref, useTemplateRef, watch, computed, TransitionGroup, markRaw } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkButton from './MkButton.vue';
+import MkInput from '@/components/MkInput.vue';
 import type { MenuItem } from '@/types/menu.js';
 import XNavFolder from '@/components/MkDrive.navFolder.vue';
 import XFolder from '@/components/MkDrive.folder.vue';
@@ -238,6 +251,26 @@ watch([selectedFolders, isRootSelected], () => {
 });
 
 const fetching = ref(true);
+const searchQuery = ref('');
+const activeSearchQuery = ref('');
+
+async function searchFiles() {
+	if (fetching.value || searchQuery.value.trim().length > 1000) return;
+	activeSearchQuery.value = searchQuery.value.trim();
+	await initialize();
+}
+
+async function clearSearch() {
+	searchQuery.value = '';
+	await searchFiles();
+}
+
+function matchesCurrentFile(file: Misskey.entities.DriveFile) {
+	if (file.folderId !== (folder.value?.id ?? null)) return false;
+	if (props.type && !(props.type.endsWith('/*') ? file.type.startsWith(props.type.slice(0, -1)) : file.type === props.type)) return false;
+	const query = activeSearchQuery.value.toLowerCase();
+	return query === '' || file.name.toLowerCase().includes(query) || (file.comment ?? '').toLowerCase().includes(query);
+}
 
 const sortModeSelect = ref<NonNullable<Misskey.entities.DriveFilesRequest['sort']>>('+createdAt');
 
@@ -247,6 +280,7 @@ const filesPaginator = markRaw(new Paginator('drive/files', {
 	params: () => ({ // 自動でリロードしたくないためcomputedParamsは使わない
 		folderId: folder.value ? folder.value.id : null,
 		type: props.type,
+		searchQuery: activeSearchQuery.value,
 		sort: ['-createdAt', '+createdAt'].includes(sortModeSelect.value) ? null : sortModeSelect.value,
 	}),
 }));
@@ -278,15 +312,18 @@ watch(sortModeSelect, () => {
 
 async function initialize() {
 	fetching.value = true;
-	await foldersPaginator.reload();
-	filesPaginator.initialDirection = sortModeSelect.value === '-createdAt' ? 'newer' : 'older';
-	filesPaginator.order.value = sortModeSelect.value === '-createdAt' ? 'oldest' : 'newest';
-	await filesPaginator.reload();
-	fetching.value = false;
+	try {
+		await foldersPaginator.reload();
+		filesPaginator.initialDirection = sortModeSelect.value === '-createdAt' ? 'newer' : 'older';
+		filesPaginator.order.value = sortModeSelect.value === '-createdAt' ? 'oldest' : 'newest';
+		await filesPaginator.reload();
+	} finally {
+		fetching.value = false;
+	}
 }
 
 function onStreamDriveFileCreated(file: Misskey.entities.DriveFile) {
-	if (file.folderId === (folder.value?.id ?? null)) {
+	if (matchesCurrentFile(file)) {
 		filesPaginator.prepend(file);
 	}
 }
@@ -709,7 +746,7 @@ function onContextmenu(ev: PointerEvent) {
 }
 
 useGlobalEvent('driveFileCreated', (file) => {
-	if (file.folderId === (folder.value?.id ?? null)) {
+	if (matchesCurrentFile(file)) {
 		filesPaginator.prepend(file);
 	}
 });
@@ -717,13 +754,13 @@ useGlobalEvent('driveFileCreated', (file) => {
 useGlobalEvent('driveFilesUpdated', (files) => {
 	for (const f of files) {
 		if (filesPaginator.items.value.some(x => x.id === f.id)) {
-			if (f.folderId === (folder.value?.id ?? null)) {
+			if (matchesCurrentFile(f)) {
 				filesPaginator.updateItem(f.id, () => f);
 			} else {
 				filesPaginator.removeItem(f.id);
 			}
 		} else {
-			if (f.folderId === (folder.value?.id ?? null)) {
+			if (matchesCurrentFile(f)) {
 				filesPaginator.prepend(f);
 			}
 		}
@@ -784,6 +821,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" module>
+.search {
+	display: grid;
+	gap: 12px;
+	padding: 16px;
+}
+
 .transition_files_move,
 .transition_files_enterActive,
 .transition_files_leaveActive {
