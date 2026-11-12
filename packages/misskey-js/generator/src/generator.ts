@@ -55,9 +55,14 @@ async function generateBaseTypes(
 		},
 	});
 
-	const filteredAst = removeNeverPropertiesFromAST(generatedTypesAst);
+	// Some generator versions use Identifier nodes to print enum literals. Parse
+	// the printed declarations before visiting them: TypeScript's visitor requires
+	// actual TypeNodes in unions, not printer-only synthetic identifiers.
+	const generatedSource = astToString(generatedTypesAst);
+	const parsedSource = ts.createSourceFile(typeFileName, generatedSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+	const filteredAst = removeNeverPropertiesFromAST(parsedSource.statements);
 
-	lines.push(astToString(filteredAst));
+	lines.push(astToString(filteredAst, { sourceText: generatedSource }));
 
 	lines.push('');
 

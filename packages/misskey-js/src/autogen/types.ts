@@ -5510,6 +5510,9 @@ export type components = {
             infoImageUrl: string | null;
             notFoundImageUrl: string | null;
             iconUrl: string | null;
+            maxCwTextLength: number;
+            maxAltTextLength: number;
+            maxBioLength: number;
             maxNoteTextLength: number;
             ads: {
                 /**
@@ -19467,6 +19470,11 @@ export interface operations {
                     type?: string | null;
                     /** @enum {string|null} */
                     sort?: '+createdAt' | '-createdAt' | '+name' | '-name' | '+size' | '-size' | null;
+                    /**
+                     * @description Literal, case-insensitive substring to find in filenames or descriptions within the selected folder.
+                     * @default
+                     */
+                    searchQuery?: string;
                 };
             };
         };
