@@ -29,10 +29,13 @@ import { prefer } from '@/preferences.js';
 import { updateCurrentAccount } from '@/accounts.js';
 import { unisonReload } from '@/utility/unison-reload.js';
 import { isBirthday } from '@/utility/is-birthday.js';
+import { initialUi } from '@/utility/moon-deck-defaults.js';
 
 export async function mainBoot() {
 	const { isClientUpdated, lastVersion } = await common(async () => {
-		let uiStyle = ui;
+		let uiStyle: string | null = initialUi(ui, window.innerWidth);
+		// 初回の選択を保存し、画面幅が変わっても利用者のUIが勝手に切り替わらないようにする。
+		if ($i && ui == null) miLocalStorage.setItem('ui', uiStyle);
 		const searchParams = new URLSearchParams(window.location.search);
 
 		if (!$i) uiStyle = 'visitor';

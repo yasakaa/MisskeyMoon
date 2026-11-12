@@ -14,6 +14,7 @@ import { genId } from '@/utility/id.js';
 import { deepClone } from '@/utility/clone.js';
 import { prefer } from '@/preferences.js';
 import * as os from '@/os.js';
+import { initialDeckColumns } from '@/utility/moon-deck-defaults.js';
 
 type DeckEvents = {
 	'column.dragStart': () => void;
@@ -82,7 +83,9 @@ export const columns = ref(__currentProfile ? __currentProfile.columns : []);
 export const layout = ref(__currentProfile ? __currentProfile.layout : []);
 
 if (prefer.s['deck.profile'] == null) {
-	addProfile('Main');
+	// 未作成のときだけ初期構成を用意する。空にした既存デッキも利用者の選択として保持。
+	const initialColumns = prefer.s['deck.profiles'].length === 0 ? initialDeckColumns(window.innerWidth) : [];
+	addProfile('Main', initialColumns);
 }
 
 export function forceSaveCurrentDeckProfile() {
@@ -110,15 +113,15 @@ function switchProfile(profile: DeckProfile) {
 	forceSaveCurrentDeckProfile();
 }
 
-function addProfile(name: string) {
+function addProfile(name: string, initialColumns: Column[] = []) {
 	if (name.trim() === '') return;
 	if (prefer.s['deck.profiles'].find(p => p.name === name)) return;
 
 	const newProfile: DeckProfile = {
 		id: genId(),
 		name,
-		columns: [],
-		layout: [],
+		columns: initialColumns,
+		layout: initialColumns.map(column => [column.id]),
 	};
 	prefer.commit('deck.profiles', [...prefer.s['deck.profiles'], newProfile]);
 	switchProfile(newProfile);
